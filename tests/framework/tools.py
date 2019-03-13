@@ -2,6 +2,10 @@ import json
 import os
 
 
+def on_windows():
+    return os.name == "nt"
+
+
 def get_file_dir():
     return os.path.normpath(
         os.path.join(os.path.dirname(__file__), "../framework/files")

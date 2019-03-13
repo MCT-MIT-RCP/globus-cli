@@ -148,7 +148,10 @@ class CliTestCase(unittest.TestCase):
         # confirm expected exit_code
         if result.exit_code != assert_exit_code:
             if isinstance(line, six.binary_type):
-                line = line.decode("utf-8")
+                try:
+                    line = line.decode("utf-8")
+                except UnicodeDecodeError:
+                    line = line.decode("latin-1")
             raise (
                 Exception(
                     (

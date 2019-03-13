@@ -4,26 +4,6 @@ dist: xenial
 language: python
 matrix:
   include:
-    - python: "2.7"
-      env: TOXENV=py
-    # py2 linting build (flake8 on py2 can flag different stuff)
-    - python: "2.7"
-      env: TOXENV=lint
-    # test on 3.4, 3.5, 3.6
-    - python: "3.4"
-      env: TOXENV=py
-    - python: "3.5"
-      env: TOXENV=py
-    - python: "3.6"
-      env: TOXENV=py
-    # separate py3.6 linting build, which runs 'black --check' (no py2 support)
-    - python: "3.6"
-      env: TOXENV=py36-lint
-    # hack py37, py38 to use a different Travis worker type
-    # sudo:required gets us the VM builds where these pythons work
-    - python: "3.7"
-      env: TOXENV=py
-      sudo: required
     # windows testing
     - os: windows
       language: sh

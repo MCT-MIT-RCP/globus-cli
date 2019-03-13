@@ -1,6 +1,11 @@
+import json
+
 from tests.framework.cli_testcase import CliTestCase
 from tests.framework.constants import GO_EP1_ID, GO_EP2_ID
-from tests.framework.tools import get_user_data
+from tests.framework.tools import get_user_data, on_windows
+
+# TODO: remove this as part of handling #455
+PATHSEP = "\\" if on_windows() else "/"
 
 
 class BasicTests(CliTestCase):
@@ -119,10 +124,15 @@ class BasicTests(CliTestCase):
             + str(GO_EP2_ID),
             batch_input=batch_input,
         )
-        self.assertIn('"source_path": "abc"', output)
-        self.assertIn('"destination_path": "/def"', output)
-        self.assertIn('"source_path": "/xyz"', output)
-        self.assertIn('"destination_path": "p/q/r"', output)
+        # rely on json.dumps() in order to get the quoting right in the Windows
+        # case
+        # FIXME: this should be removed after we resolve #455
+        for src, dst in [
+            ("abc", "{}def".format(PATHSEP)),
+            ("{}xyz".format(PATHSEP), "p{sep}q{sep}r".format(sep=PATHSEP)),
+        ]:
+            self.assertIn('"source_path": {}'.format(json.dumps(src)), output)
+            self.assertIn('"destination_path": {}'.format(json.dumps(dst)), output)
 
     def test_delete_batchmode_dryrun(self):
         """
@@ -133,5 +143,8 @@ class BasicTests(CliTestCase):
             "globus delete --batch --dry-run " + str(GO_EP1_ID), batch_input=batch_input
         )
         self.assertEqual(
-            "\n".join(("Path   ", "-------", "abc/def", "/xyz   \n")), output
+            ("\n".join(("Path   ", "-------", "abc{sep}def", "{sep}xyz   \n"))).format(
+                sep=PATHSEP
+            ),
+            output,
         )

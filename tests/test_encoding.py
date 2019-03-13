@@ -8,6 +8,7 @@ import six
 
 from tests.framework.cli_testcase import CliTestCase
 from tests.framework.constants import GO_EP1_ID
+from tests.framework.tools import on_windows
 
 
 class EncodingTests(CliTestCase):
@@ -147,6 +148,9 @@ class EncodingTests(CliTestCase):
         self.dir_operations(name, expected_name="a% b")
         self.ep_operations(name, expected_name="a% b")
 
+    @unittest.skipIf(
+        six.PY2 and on_windows(), "python2 Windows console issues (FIXME?)"
+    )
     def test_non_ascii_utf8(self):
         """
         Tests operations with a UTF-8 name containing non ASCII characters with
@@ -157,6 +161,9 @@ class EncodingTests(CliTestCase):
         self.ep_operations(name)
 
     @unittest.skipIf(six.PY3, "test run with Python 3")
+    @unittest.skipIf(
+        six.PY2 and on_windows(), "python2 Windows console issues (FIXME?)"
+    )
     def test_non_ascii_utf8_bytes(self):
         """
         Tests operations with a byte string encoded from non ASCII UTF-8.
@@ -168,6 +175,9 @@ class EncodingTests(CliTestCase):
         self.dir_operations(byte_name, expected_name=uni_name)
         self.ep_operations(byte_name, expected_name=uni_name)
 
+    @unittest.skipIf(
+        six.PY2 and on_windows(), "python2 Windows console issues (FIXME?)"
+    )
     def test_latin1(self):
         """
         Tests operations with latin-1 name that is not valid UTF-8.
@@ -182,6 +192,9 @@ class EncodingTests(CliTestCase):
         self.ep_operations(name)
 
     @unittest.skipIf(six.PY3, "test run with Python 3")
+    @unittest.skipIf(
+        six.PY2 and on_windows(), "python2 Windows console issues (FIXME?)"
+    )
     def test_invalid_utf8_bytes(self):
         """
         Tests operations with byte string that can be decoded with
