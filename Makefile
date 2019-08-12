@@ -10,11 +10,10 @@ help:
 	@echo ""
 	@echo "  help:      Show this helptext"
 	@echo "  showvars:  Show makefile variables"
-	@echo "  localdev:  Setup local development env with a 'pip install -e'"
-	@echo "  build:     Create the source distributions for release"
-	@echo "  test:      Run the full suite of tests"
-	@echo "  release:   [build], but also upload to pypi using twine and create a signed git tag"
-	@echo "  clean:     Remove typically unwanted files, mostly from [build]"
+	@echo "  localdev:  Setup local development env with a 'pip install -e' and include dev tools"
+	@echo "  test:      Run the full suite of tests on py2 and py3"
+	@echo "  release:   Build, upload to pypi, and create a signed git tag"
+	@echo "  clean:     Remove typically unwanted files, mostly from [build] and [test]"
 
 
 showvars:
@@ -24,41 +23,24 @@ showvars:
 $(VIRTUALENV):
 	virtualenv --python=$(PYTHON_VERSION) $(VIRTUALENV)
 	$(VIRTUALENV)/bin/pip install -U pip setuptools
-	$(VIRTUALENV)/bin/pip install -e '.[development]'
-
+	$(VIRTUALENV)/bin/pip install 'tox<4'
+	$(VIRTUALENV)/bin/pip install -e .
 localdev: $(VIRTUALENV)
 
-
-build: $(VIRTUALENV)
-	rm -rf dist/
-	$(VIRTUALENV)/bin/python setup.py sdist bdist_egg
-
-
-$(VIRTUALENV)/bin/twine: $(VIRTUALENV) upload-requirements.txt
-	$(VIRTUALENV)/bin/pip install -U -r upload-requirements.txt
-
-release: $(VIRTUALENV)/bin/twine build
-	$(VIRTUALENV)/bin/twine upload dist/*
+release: $(VIRTUALENV)
+	$(VIRTUALENV)/bin/tox -e upload
 	git tag -s "$(CLI_VERSION)" -m "v$(CLI_VERSION)"
 
-$(VIRTUALENV)/bin/flake8 $(VIRTUALENV)/bin/nose2: test-requirements.txt $(VIRTUALENV)
-	$(VIRTUALENV)/bin/pip install -r test-requirements.txt
-	touch $(VIRTUALENV)/bin/flake8
-	touch $(VIRTUALENV)/bin/nose2
+# default for local testing
+test: $(VIRTUALENV)
+	$(VIRTUALENV)/bin/tox -e py2-lint,py3-lint,py2,py3
 
-test: $(VIRTUALENV)/bin/flake8 $(VIRTUALENV)/bin/nose2 localdev
-	$(VIRTUALENV)/bin/flake8
-	$(VIRTUALENV)/bin/nose2 --verbose
-
-
-# run outside of tox because specifying a tox environment for py3.6+ is awkward
 autoformat: $(VIRTUALENV)
-	$(VIRTUALENV)/bin/isort --recursive tests/ globus_cli/ setup.py
-	if [ -f "$(VIRTUALENV)/bin/black" ]; then $(VIRTUALENV)/bin/black  tests/ globus_cli/ setup.py; fi
-
+	$(VIRTUALENV)/bin/tox -e autoformat
 
 clean:
 	-rm -r $(VIRTUALENV)
+	-rm -r .tox
 	-rm -r dist
 	-rm -r build
 	-rm -r *.egg-info

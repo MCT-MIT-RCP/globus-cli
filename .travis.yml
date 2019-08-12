@@ -8,10 +8,8 @@ matrix:
       env: TOXENV=py
     # py2 linting build (flake8 on py2 can flag different stuff)
     - python: "2.7"
-      env: TOXENV=lint
-    # test on 3.4, 3.5, 3.6
-    - python: "3.4"
-      env: TOXENV=py
+      env: TOXENV=py2-lint
+    # test on 3.5, 3.6, 3.7
     - python: "3.5"
       env: TOXENV=py
     - python: "3.6"
@@ -28,7 +26,7 @@ matrix:
     - os: windows
       language: sh
       python: "2.7"
-      env: TOXENV=py,lint
+      env: TOXENV=py,py2-lint
       before_install:
         - choco install python2
         - export PATH="/c/Python27:/c/Python27/Scripts:$PATH"
@@ -44,6 +42,6 @@ matrix:
 cache: pip
 install:
   - pip install -U pip setuptools
-  - pip install -e '.[development]'
+  - pip install tox
 script:
   - tox

@@ -40,25 +40,7 @@ setup(
     extras_require={
         # deprecated, but do not remove -- doing so would break installs which
         # are already using this extra
-        "delegate-proxy": [],
-        # the development extra is for CLI developers only
-        "development": [
-            # drive testing with tox
-            "tox>=3.5.3,<4.0",
-            # linting
-            "flake8>=3.0,<4.0",
-            "isort>=4.3,<5.0",
-            # black requires py3.6+
-            'black==19.3b0;python_version>="3.6"',
-            # flake-bugbear requires py3.5+
-            'flake8-bugbear==19.3.0;python_version>="3.5"',
-            # testing
-            "nose2==0.9.1",
-            # mock on py2, py3.4 and py3.5
-            # not just py2: py3 versions of mock don't all have the same
-            # interface!
-            'mock==2.0.0;python_version<"3.6"',
-        ],
+        "delegate-proxy": []
     },
     entry_points={"console_scripts": ["globus = globus_cli:main"]},
     # descriptive info, non-critical
